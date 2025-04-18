@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  order-service:
+    build: ./service1
+    ports:
+      - "3001:3001"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/orders
+    depends_on:
+      - mongodb
+
+  payment-service:
+    build: ./service2
+    ports:
+      - "3002:3002"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/payments
+    depends_on:
+      - mongodb
+
+  inventory-service:
+    build: ./service3
+    ports:
+      - "3003:3003"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/inventory
+    depends_on:
+      - mongodb
+
+  loyalty-service:
+    build: ./service4
+    ports:
+      - "3004:3004"
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/loyalty
+    depends_on:
+      - mongodb
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - order-service
+      - payment-service
+      - inventory-service
+      - loyalty-service
+
+volumes:
+  mongo_data:
